@@ -1,0 +1,80 @@
+services:
+  db:
+    image: postgres:17-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres_password}
+      POSTGRES_DB: ${POSTGRES_DB:-postgres_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres_user} -d ${POSTGRES_DB:-postgres_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  
+  redis:
+    image: redis:alpine
+    restart: always
+    ports:
+      - "6379:6379"
+
+  worker:
+    build: .
+    restart: always
+    command: python -m src.main worker
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+  
+  scheduler:
+    build: .
+    restart: always
+    command: >
+      sh -c "
+        i=0;
+        while true; do
+          if [ $((i % 24)) -eq 0 ]; then
+             echo '🚀 STARTING FULL SCAN (100 pages)...';
+             python -m src.main producer --pages 100;
+          else
+             echo '⚡ STARTING QUICK SCAN (5 pages)...';
+             python -m src.main producer --pages 5;
+          fi
+          
+          echo 'Sleeping 30 minutes...';
+          sleep 1800;
+          i=$((i+1));
+        done
+      "
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    depends_on:
+      redis:
+        condition: service_started
+
+  ai_worker:
+    build: .
+    restart: always
+    command: python -m src.main ai_worker
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  postgres_data:

@@ -1,0 +1,11 @@
+curl_cffi>=0.5.10
+SQLAlchemy>=2.0
+openai>=1.10.0
+asyncpg
+redis
+pydantic-settings
+fonttools
+loguru
+beautifulsoup4
+typer
+greenlet
