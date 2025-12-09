@@ -195,7 +195,6 @@ class Che168Scraper(BaseScraper):
         else:
             mileage_val = int(mileage_val)
 
-        # Сборка
         laravel_data = {
             "external_id": external_id,
             "stock_id": stock_id,

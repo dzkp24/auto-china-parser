@@ -131,7 +131,10 @@ def ai_worker():
                 async with AsyncSessionLocal() as session:
                     query = (
                         select(RawCar)
-                        .where(RawCar.raw_data['ai_processed'].is_(None))
+                        .where(
+                            RawCar.raw_data['ai_processed'].is_(None),  
+                            RawCar.raw_data['parsed_success'].astext == 'true'
+                        )
                         .order_by(RawCar.id.desc()) 
                         .limit(BATCH_SIZE)
                     )
