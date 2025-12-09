@@ -35,6 +35,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
+      warp:  
+        condition: service_started
   
   scheduler:
     build: .
@@ -75,6 +77,37 @@ services:
     depends_on:
       db:
         condition: service_healthy
+
+  warp:
+    image: caomingjun/warp
+    container_name: warp_proxy
+    restart: always
+    privileged: true
+    cap_add:
+      - NET_ADMIN
+    ports:
+      - "1080:1080" 
+    environment:
+      - WARP_SLEEP=2 
+
+  rotator:
+    image: docker:cli
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock 
+    command: >
+      sh -c "
+        echo '🔄 Rotator started. IP will change every 30 minutes.';
+        while true; do
+          sleep 1800;
+          echo '♻️ Rotating IP address...';
+          docker exec warp_proxy sh -c 'rm -rf /var/lib/cloudflare-warp/*';
+          docker restart warp_proxy;
+          echo '✅ IP Rotated successfully';
+        done
+      "
+    depends_on:
+      - warp
 
 volumes:
   postgres_data:
