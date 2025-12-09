@@ -29,6 +29,7 @@ class AIProcessor:
         input_context = {
             "title_raw": car_data.get("title"),
             "description_raw": car_data.get("description"),
+            "location_raw": car_data.get("location") or raw_attrs.get("所在地") or raw_attrs.get("Location"),
             "specs": {
                 "transmission": raw_attrs.get("变速箱") or car_data.get("transmission_type"),
                 "fuel": raw_attrs.get("燃油标号") or raw_attrs.get("能源类型") or car_data.get("fuel_type"),
@@ -47,21 +48,26 @@ class AIProcessor:
 
         RULES FOR FIELDS:
         1. "brand_en": Brand name in English. Examples: "BYD", "Leapmotor", "Mercedes-Benz", "Land Rover".
-        2. "model_en": Model name in English. Examples: "Han", "C01", "E-Class", "Range Rover".
+        2. "brand_cn": Original Brand name in Chinese (e.g. "比亚迪", "奔驰"). Extract from title if possible.
+        3. "model_en": Model name in English. Examples: "Han", "C01", "E-Class", "Range Rover".
+        4. "model_cn": Original Model name in Chinese (e.g. "汉", "C级"). Extract from title if possible.
         
-        3. "title_ru": Full car title in English/Russian. 
+        5. "title_ru": Full car title in English/Russian. 
            - Format: "[brand_en] [model_en] [Year] [Trim]".
            - TRANSLATE trims: '尊享版'->'Premium', '增程'->'EREV', '四驱'->'AWD'.
            - STRICTLY NO CHINESE CHARACTERS allowed in title_ru.
 
-        4. "description_ru": Attractive sales description in Russian (3-5 sentences).
-        5. "color_en": Map to: [Black, White, Silver, Grey, Red, Blue, Brown, Green, Yellow, Orange, Purple, Beige, Gold, Pink, Other].
-        6. "color_ru": Russian translation of color_en.
-        7. "transmission_type": Map to: [automatic, robot, cvt, manual].
-        8. "drive_type": Map to: [FWD, RWD, AWD].
-        9. "body_type": Map to: [Sedan, SUV, Hatchback, MPV, Coupe, Pickup, Wagon, Van].
-        10. "fuel_type": Map to: [petrol, diesel, electric, hybrid, phev].
-        11. "features_ru": Translate features list to Russian.
+        6. "description_ru": Attractive sales description in Russian (3-5 sentences).
+        7. "color_en": Map to: [Black, White, Silver, Grey, Red, Blue, Brown, Green, Yellow, Orange, Purple, Beige, Gold, Pink, Other].
+        8. "color_ru": Russian translation of color_en.
+        9. "transmission_type": Map to: [automatic, robot, cvt, manual].
+        10. "drive_type": Map to: [FWD, RWD, AWD].
+        11. "body_type": Map to: [Sedan, SUV, Hatchback, MPV, Coupe, Pickup, Wagon, Van].
+        12. "fuel_type": Map to: [petrol, diesel, electric, hybrid, phev].
+        13. "features_ru": Translate features list to Russian.
+        14. "location": Translate the specific Chinese city name to English (Standard Pinyin).
+            - Example: "北京" -> "Beijing", "成都市" -> "Chengdu", "郑州" -> "Zhengzhou".
+            - Do not include "City" or "Province" in the output, just the name.
 
         If a field is unknown, use null.
         """
@@ -80,7 +86,7 @@ class AIProcessor:
             content = response.choices[0].message.content
             ai_result = json.loads(content)
             
-            logger.info(f"✨ AI Processed: {ai_result.get('brand_en')} {ai_result.get('model_en')}")
+            logger.info(f"✨ AI Processed: {ai_result.get('brand_en')} {ai_result.get('model_en')} @ {ai_result.get('location')}")
 
             return ai_result
         except Exception as e:
