@@ -102,9 +102,11 @@ def worker():
 
                     logger.info(f"[DETAIL] Parsing car {ex_id}")
                     
-                    # 1. Парсим детали
                     full_car_data = await scraper.parse_detail(url, basic_info=car_basic)
                     
+                    if full_car_data == None:
+                        return
+
                     await save_car_data(full_car_data)
                     
                     await asyncio.sleep(1.5)

@@ -158,10 +158,20 @@ class Che168Scraper(BaseScraper):
         title = soup.select_one(".car-brand-name")
         title_text = title.get_text(strip=True) if title else (basic_info.get('title') if basic_info else "Unknown")
         
-        price_el = soup.select_one("#overlayPrice")
-        price_raw = self.decoder.decode(font_bytes, price_el.get_text(strip=True)) if price_el else "0"
-        price_val = self._clean_number(price_raw) or 0
-        if "万" in price_raw: price_val *= 10000 
+        price_el = soup.select_one('.price')
+        if not price_el:
+            price_el = soup.select_one('#overlayPrice')
+        
+        if not price_el:
+            return None
+        
+        price_raw = self.decoder.decode(font_bytes, price_el.get_text(strip=True))
+        price_val = self._clean_number(price_raw)
+
+        if price_val <= 0:
+            return None
+
+        price_val *= 10000
         
         fuel_val = raw_attrs.get("燃料类型") or raw_attrs.get("能源类型") or raw_attrs.get("Fueltype") or "汽油"
         engine_str = raw_attrs.get("发动机") or raw_attrs.get("engine") or ""
