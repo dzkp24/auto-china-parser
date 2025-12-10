@@ -139,11 +139,13 @@ class Che168Scraper(BaseScraper):
         stock_match = re.search(r"车辆编码[：:]\s*(\d+)", description_text)
         stock_id = stock_match.group(1) if stock_match else external_id
 
-        images = []
-        for img in soup.select(".swiper-slide img"):
-            src = img.get('src') or img.get('data-src') or ""
-            if src.startswith("//"): images.append("https:" + src)
-        images = list(set(images))
+        images = [
+            'https:' + img['src'] if img['src'].startswith('//') else img['src']
+            for img in soup.select('.swiper-slide a img')
+            if img.get('src') and 'default' not in img['src']
+        ]
+            
+        images = list(dict.fromkeys(images))
 
         title = soup.select_one(".car-brand-name")
         title_text = title.get_text(strip=True) if title else (basic_info.get('title') if basic_info else "Unknown")
