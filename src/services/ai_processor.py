@@ -51,19 +51,28 @@ class AIProcessor:
         2. "brand_cn": Original Brand name in Chinese (e.g. "比亚迪", "奔驰"). Extract from title if possible.
         3. "model_en": Model name in English. Examples: "Han", "C01", "E-Class", "Range Rover".
         4. "model_cn": Original Model name in Chinese (e.g. "汉", "C级"). Extract from title if possible.
-        
+
         5. "title_ru": Full car title in English/Russian. 
-           - Format: "[brand_en] [model_en] [Year] [Trim]".
-           - TRANSLATE trims: '尊享版'->'Premium', '增程'->'EREV', '四驱'->'AWD'.
-           - STRICTLY NO CHINESE CHARACTERS allowed in title_ru.
+        - Format: "[brand_en] [model_en] [Year] [Trim]".
+        - TRANSLATE trims: '尊享版'->'Premium', '增程'->'EREV', '四驱'->'AWD'.
+        - STRICTLY NO CHINESE CHARACTERS allowed in title_ru.
 
         6. "description_ru": Attractive sales description in Russian (3-5 sentences).
         7. "color_en": Map to: [Black, White, Silver, Grey, Red, Blue, Brown, Green, Yellow, Orange, Purple, Beige, Gold, Pink, Other].
         8. "color_ru": Russian translation of color_en.
-        9. "transmission_type": Map to: [automatic, robot, cvt, manual].
-        10. "drive_type": Map to: [FWD, RWD, AWD].
-        11. "body_type": Map to: [Sedan, SUV, Hatchback, MPV, Coupe, Pickup, Wagon, Van].
-        12. "fuel_type": Map to: [petrol, diesel, electric, hybrid, phev].
+
+        9. "transmission_type": Map strictly to: ["automatic", "manual", "robotic", "variator"].
+        - Note: 'CVT' -> 'variator'. 'Dual Clutch'/'DCT' -> 'robotic'.
+
+        10. "drive_type": Map strictly to: ["front", "rear", "all_wheel"].
+        - Note: 'FWD' -> 'front', 'RWD' -> 'rear', 'AWD'/'4WD' -> 'all_wheel'.
+
+        11. "body_type": Map strictly to: ["sedan", "hatchback", "crossover", "universal", "cabriolet", "minivan"].
+        - Note: 'SUV' -> 'crossover'. 'Wagon' -> 'universal'. 'MPV'/'Van' -> 'minivan'.
+
+        12. "fuel_type": Map strictly to: ["gasoline", "diesel", "electric", "hybrid"].
+        - Note: 'Petrol' -> 'gasoline'. 'PHEV'/'EREV' -> 'hybrid'.
+
         13. "features_ru": Translate features list to Russian.
         14. "location": Translate the specific Chinese city name to English (Standard Pinyin).
             - Example: "北京" -> "Beijing", "成都市" -> "Chengdu", "郑州" -> "Zhengzhou".
