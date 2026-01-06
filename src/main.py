@@ -104,8 +104,10 @@ def worker():
                     
                     full_car_data = await scraper.parse_detail(url, basic_info=car_basic)
                     
-                    if full_car_data == None:
-                        return
+                    if full_car_data is None:
+                        logger.error("DETAIL parse failed, skipping")
+                        await asyncio.sleep(10)
+                        continue
 
                     await save_car_data(full_car_data)
                     
